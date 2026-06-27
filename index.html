@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Corte de Caja · 805 MultiServices</title>
+<style>
+  :root{
+    --navy:#0f2747;
+    --espresso:#0f2747;
+    --brown:#15406b;
+    --caramel:#3a7bd5;
+    --amber:#7fb0e8;
+    --ink:#16222e;
+    --line:#cdd9e7;
+    --line2:#eaf0f8;
+    --sky-bg:#eef4fb;
+    --paper:#ffffff;
+    --green:#157f48;
+    --green-bg:#e8f4ec;
+    --red:#c0392b;
+    --red-bg:#fbece9;
+    --blue:#2c6e9e;
+    --mut:#9aa6b4;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:#dde6f1;
+    color:var(--ink);
+    font-family:"Segoe UI",Roboto,system-ui,-apple-system,Arial,sans-serif;
+    font-size:12px;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .sheet{
+    width:100%;
+    max-width:8.5in;
+    min-height:11in;
+    margin:14px auto;
+    background:var(--paper);
+    padding:0.34in 0.36in 0.4in;
+    box-shadow:0 4px 22px rgba(0,0,0,.18);
+  }
+  .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+  /* ---------- ENCABEZADO ---------- */
+  .range{
+    text-align:center;
+    font-weight:800;
+    font-size:17px;
+    letter-spacing:.5px;
+    color:var(--espresso);
+    margin:0 0 8px;
+  }
+  .range b{color:var(--caramel)}
+  .head{
+    display:flex;
+    align-items:stretch;
+    gap:12px;
+    border:1.5px solid var(--espresso);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .brand{
+    background:linear-gradient(160deg,var(--brown),var(--espresso));
+    color:#fff;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 12px;
+    min-width:182px;
+  }
+  .brand .logo{
+    width:48px;height:48px;border-radius:50%;
+    object-fit:cover;background:#fff2;
+    border:2px solid var(--amber);flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;color:var(--amber);font-size:18px;
+  }
+  .brand .who{line-height:1.15}
+  .brand .co{font-weight:800;font-size:13px}
+  .brand .emp{font-size:10.5px;opacity:.85;margin-top:2px}
+  .kpis{
+    flex:1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 14px;
+    padding:8px 14px;
+    align-content:center;
+  }
+  .kpi{display:flex;justify-content:space-between;align-items:baseline;
+       padding:2.5px 0;border-bottom:1px solid var(--line2)}
+  .kpi:last-child{border-bottom:none}
+  .kpi .l{font-weight:600;color:#5a5249;font-size:11.5px}
+  .kpi .v{font-weight:800;font-size:14px}
+  .kpi.in .v{color:var(--green)}
+  .kpi.out .v{color:var(--red)}
+  .kpi.corte .l,.kpi.corte .v{color:var(--brown);font-size:15px}
+  .kpi.entrega .v{color:var(--blue)}
+  .kpi.dif .v{font-size:13px}
+  .kpi.dif .v.fal{color:var(--red)}
+  .kpi.dif .v.sob{color:var(--green)}
+  .cobros{
+    display:flex;gap:7px;justify-content:flex-end;
+    margin:7px 0 0;
+  }
+  .chip{
+    border:1px solid var(--line);border-radius:14px;
+    padding:3px 11px;font-size:10.5px;font-weight:700;color:#41546a;
+    background:#f1f6fc;
+  }
+  .chip b{color:var(--brown)}
+
+  /* ---------- BLOQUE DE RESUMEN ---------- */
+  .summary{
+    display:grid;
+    grid-template-columns:1.35fr 1fr 1fr;
+    gap:8px;
+    margin:9px 0 6px;
+  }
+  .box{border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .box h4{
+    margin:0;font-size:10px;letter-spacing:.6px;text-transform:uppercase;
+    font-weight:800;color:#fff;padding:4px 8px;background:var(--brown);
+  }
+  .box.salidas h4{background:#2c6e9e}
+  .box.canc h4{background:#46719e}
+  .rows{padding:3px 8px 5px}
+  .rows .r{display:flex;justify-content:space-between;align-items:baseline;
+     padding:2px 0;border-bottom:1px dotted var(--line2);font-size:11px}
+  .rows .r:last-child{border-bottom:none}
+  .rows .r .k{color:#5a5249;font-weight:600}
+  .rows .r .x{font-weight:800;color:var(--ink)}
+  .rows .r .x.z{color:var(--mut);font-weight:600}
+
+  /* ---------- TABLA DE MOVIMIENTOS (cuadros separados) ---------- */
+  table{width:100%;border-collapse:collapse;margin-top:4px;table-layout:fixed}
+  thead th{
+    background:var(--navy);color:#fff;font-size:9px;
+    letter-spacing:.2px;text-transform:uppercase;font-weight:700;
+    padding:3px 4px;text-align:left;
+    border:1px solid var(--navy);white-space:nowrap;
+  }
+  thead th.r,tbody td.r{text-align:right;white-space:nowrap}
+  thead th.c,tbody td.c{text-align:center}
+  tbody td{
+    padding:1px 4px;border:1px solid var(--line);
+    vertical-align:top;font-size:10px;line-height:1.1;
+    overflow-wrap:break-word;word-break:break-word;
+  }
+  /* las 4 columnas numéricas: nunca parten en vertical */
+  tbody td.r{overflow-wrap:normal;word-break:keep-all;white-space:nowrap}
+  tbody tr:nth-child(even){background:var(--sky-bg)}
+  td.fch{border-left-width:3px;white-space:nowrap}
+  td.fch.i{border-left-color:var(--green)}
+  td.fch.o{border-left-color:var(--red)}
+  .dt{font-variant-numeric:tabular-nums;font-size:9.5px;font-weight:600;line-height:1.05}
+  .hr{font-variant-numeric:tabular-nums;font-size:8.5px;color:#5a6675;line-height:1.05}
+  .serv{font-weight:800;color:var(--blue);text-transform:uppercase;font-size:9.5px;line-height:1.08}
+  .desc{color:#5a6675;font-size:9px;margin-top:0;line-height:1.05}
+  .cli{font-weight:700;line-height:1.08}
+  .pay{font-size:8.5px;color:#5a6675;text-transform:uppercase;line-height:1.05}
+  td.r{font-variant-numeric:tabular-nums;font-weight:700}
+  td.r.in{color:var(--green)}
+  td.r.out{color:var(--red)}
+  td.r.z{color:var(--mut);font-weight:500}
+  .obs{font-size:8.5px;color:#5a6675;text-transform:uppercase;line-height:1.05}
+
+  /* ---------- BOTÓN ---------- */
+  .print-btn{
+    position:fixed;right:18px;bottom:18px;z-index:9;
+    background:var(--brown);color:#fff;border:none;border-radius:24px;
+    padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;
+    box-shadow:0 4px 14px rgba(0,0,0,.25);
+  }
+  .print-btn:hover{background:var(--espresso)}
+
+  /* ---------- IMPRESIÓN ---------- */
+  @page{size:letter portrait;margin:0.3in}
+  @media print{
+    body{background:#fff}
+    .sheet{margin:0;box-shadow:none;width:100%;min-height:auto;padding:0}
+    table{width:100%}
+    .print-btn{display:none}
+    thead{display:table-header-group}
+    tr{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="sheet" id="sheet"></div>
+<button class="print-btn" onclick="window.print()">🖨 Imprimir</button>
+
+<script>
+/* =====================================================================
+   CONTRATO DE DATOS  ·  URL:  index.html#d=<ENCODEURL(payload)>
+   payload = HEADER ‖ ROW ‡ ROW ‡ ROW ...
+   - separador de secciones (header vs filas): ‖   (U+2016)
+   - separador entre filas:                    ‡   (U+2021)
+   - separador de campos:                      ^
+   HEADER (33 campos, en orden):
+     0 fechaI   1 fechaF   2 empleado   3 fotoURL
+     4 inicioCaja 5 entradas 6 salidas 7 delCorte
+     8 cobroIns 9 entrega 10 cobroDmv 11 diferencia 12 difLabel
+     13 E_INS 14 E_LAT 15 E_DMV 16 E_LIV 17 E_RIA
+     18 E_VIA 19 E_INT 20 E_MON 21 E_RAMOS 22 E_OTROS
+     23 S_TAR 24 S_DEB 25 S_OTS 26 S_CHE 27 S_ZELL
+     28 S_VIA 29 S_INT 30 S_MON 31 S_RIA 32 S_PAY
+   ROW (12 campos):
+     0 tipoMov 1 fecha 2 hora 3 descripcion 4 categoria
+     5 cliente 6 formaPago 7 col805(comision) 8 total
+     9 entrada 10 salida 11 observacion
+   ===================================================================== */
+const SEC='\u2016', REC='\u2021', F='^';
+
+/* ---- datos de muestra (se ven si abres el HTML sin #d=) ---- */
+const DEMO_H = ["Jun-26-2026","Jun-26-2026","Dinorah","","400","6387","1612","4775","495.00","4776","1014.00","-1","Sobrante",
+  "855","0","1195","770","0","2729","0","0","0","795","450.11","111","90","0","0","0","0","0","0","0"];
+const DEMO_R = [
+  ["➕ Entrada","6/26/2026","9:36:38 AM","PAGAR DEUDA","PAGO","CARLOS HUMBERTO RIVAS PINEDA","💵 EFECTIVO","0","485","485","0",""],
+  ["➕ Entrada","6/26/2026","10:50:31 AM","LIVESCAN","LIVESCAN","BRENDALIN HERNANDEZ MARTINEZ","🏢 PAGO DIRECTO A COMPAÑIA","25","74","74","0",""],
+  ["➕ Entrada","6/26/2026","11:59:58 AM","NUEVA POLIZA","INSUR","MARCELINO PABLO ISAAC","💵 EFECTIVO","180","355","355","0",""],
+  ["➖ Salida","6/26/2026","12:24:22 PM","OTRA SALIDA","OTRA SALIDA","","💵 EFECTIVO","0","45","0","45","conrado morales"],
+  ["➕ Entrada","6/26/2026","12:37:04 PM","VIAMERIC","ENVIO/BILL","NAYELI YERALDI SAUCEDA GUERRERO","💵 EFECTIVO","20","1757","1757","0",""],
+  ["➖ Salida","6/26/2026","3:13:19 PM","OTRA SALIDA","OTRA SALIDA","MANUEL DE JESUS VILLARREAL","💵 EFECTIVO","0","45","0","45","cancelacion de cita"],
+  ["➕ Entrada","6/26/2026","3:25:15 PM","STICKER","DMV","CELSO SANTIAGO APOLINAR","💵 EFECTIVO","25","263","263","0",""],
+  ["➕ Entrada","6/26/2026","7:19:23 PM","ACTA DE NAC.","ACTA","","💵 EFECTIVO","40","45","45","0",""]
+];
+
+/* ---------------- parseo de la URL ---------------- */
+function smartDecode(raw){
+  let s=raw;
+  try{ s=decodeURIComponent(raw); }catch(e){ s=raw; }
+  // Si tras decodificar NO apareció el separador de sección pero todavía
+  // quedan secuencias %xx, lo más probable es doble codificación: decodifica otra vez.
+  if(s.indexOf(SEC)===-1 && /%[0-9A-Fa-f]{2}/.test(s)){
+    try{ s=decodeURIComponent(s); }catch(e){}
+  }
+  return s;
+}
+function readPayload(){
+  let raw="";
+  const h=location.hash||"";
+  if(h.indexOf("#d=")===0) raw=h.slice(3);
+  else if(new URLSearchParams(location.search).get("d")) raw=new URLSearchParams(location.search).get("d");
+  if(!raw) return null;
+  raw=smartDecode(raw);
+  const parts=raw.split(SEC);
+  const H=(parts[0]||"").split(F);
+  const R=(parts[1]||"").trim()? parts[1].split(REC).map(r=>r.split(F)) : [];
+  return {H,R};
+}
+
+/* ---------------- helpers ---------------- */
+function toNum(v){
+  if(v===undefined||v===null) return 0;
+  const n=parseFloat((""+v).replace(/[^0-9.\-]/g,""));
+  return isNaN(n)?0:n;
+}
+function money(v){return "$"+toNum(v).toLocaleString("en-US",{maximumFractionDigits:2});}
+function dash(v){            // muestra "-" si es 0 / vacío
+  const s=(v==null?"":""+v).trim();
+  if(s===""||s==="-") return {t:"-",z:true};
+  const n=toNum(s);
+  if(n===0) return {t:"-",z:true};
+  return {t:n.toLocaleString("en-US",{maximumFractionDigits:2}),z:false};
+}
+function esc(s){return (s==null?"":""+s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function isOut(tipo){return /salid/i.test(tipo||"");}
+
+/* ---------------- render ---------------- */
+function render(H,R){
+  const g=i=>H[i]!==undefined?H[i]:"";
+  const dif=g(11), difLab=g(12);
+  const entregaBlank=(g(9)===""||g(9)==null);
+
+  let difHtml="";
+  if(!entregaBlank && dif!==""){
+    const sob=/sob/i.test(difLab);
+    difHtml=`<span class="v ${sob?'sob':'fal'} num">${esc(dif)} ${esc(difLab)}</span>`;
+  }else{ difHtml=`<span class="v num">—</span>`; }
+
+  const logo = g(3)
+    ? `<img class="logo" src="${esc(g(3))}" alt="">`
+    : `<div class="logo">805</div>`;
+
+  /* ----- grupos del resumen ----- */
+  const entradas=[["INSURANCE",13],["DMV",15],["LIVESCAN",16],["VIAMERICAS",18],
+                  ["LATINO",14],["RIA",17],["INTERMEX",19],["WESTER UN",20],
+                  ["RAMOS CAJAS",21],["OTRAS ENTRADAS",22]];
+  const salidas =[["TARJETA",23],["A DEBER",24],["OTRAS SALIDAS",25],["CHEQUE",26],["ZELLE",27]];
+  const canc    =[["CANC VIAMERIC",28],["CANC INTERMX",29],["CANC WESTER",30],["CANC RIA",31],["PAYOUT RIA",32]];
+  const rowsHtml = arr => arr.map(([k,i])=>{
+    const d=dash(g(i));
+    return `<div class="r"><span class="k">${k}</span><span class="x num ${d.z?'z':''}">${d.t}</span></div>`;
+  }).join("");
+
+  /* ----- filas de la tabla ----- */
+  const trs = R.map(r=>{
+    const out=isOut(r[0]);
+    const c805=dash(r[7]), tot=dash(r[8]), ent=dash(r[9]), sal=dash(r[10]);
+    return `<tr>
+      <td class="fch ${out?'o':'i'}"><div class="dt">${esc(r[1]||'')}</div><div class="hr">${esc(r[2]||'')}</div></td>
+      <td><div class="serv">${esc(r[4]||'')}</div><div class="desc">${esc(r[3]||'')}</div></td>
+      <td class="cli">${esc(r[5]||'')}</td>
+      <td><div class="pay">${esc(r[6]||'')}</div></td>
+      <td class="r num ${c805.z?'z':''}">${c805.t}</td>
+      <td class="r num ${tot.z?'z':''}">${tot.t}</td>
+      <td class="r num in ${ent.z?'z':''}">${ent.t}</td>
+      <td class="r num out ${sal.z?'z':''}">${sal.t}</td>
+      <td class="obs">${esc(r[11]||'')}</td>
+    </tr>`;
+  }).join("");
+
+  document.getElementById("sheet").innerHTML=`
+  <div class="range">${esc(g(0))} &nbsp;<b>a</b>&nbsp; ${esc(g(1))}</div>
+
+  <div class="head">
+    <div class="brand">
+      ${logo}
+      <div class="who">
+        <div class="co">805 MultiServices</div>
+        <div class="emp">${esc(g(2)||'Corte de caja')}</div>
+      </div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><span class="l">Inicio Caja</span><span class="v num">${money(g(4))}</span></div>
+      <div class="kpi in"><span class="l">Entradas</span><span class="v num">${money(g(5))}</span></div>
+      <div class="kpi out"><span class="l">Salidas</span><span class="v num">${money(g(6))}</span></div>
+      <div class="kpi corte"><span class="l">Del Corte</span><span class="v num">${money(g(7))}</span></div>
+      <div class="kpi entrega"><span class="l">Entrega</span><span class="v num">${entregaBlank?'—':money(g(9))}</span></div>
+      <div class="kpi dif"><span class="l">Diferencia</span>${difHtml}</div>
+    </div>
+  </div>
+  <div class="cobros">
+    <span class="chip">COBRO INS <b>${money(g(8))}</b></span>
+    <span class="chip">COBRO DMV <b>${money(g(10))}</b></span>
+  </div>
+
+  <div class="summary">
+    <div class="box"><h4>Entradas por servicio</h4><div class="rows">${rowsHtml(entradas)}</div></div>
+    <div class="box salidas"><h4>Pagos / Salidas</h4><div class="rows">${rowsHtml(salidas)}</div></div>
+    <div class="box canc"><h4>Cancelaciones</h4><div class="rows">${rowsHtml(canc)}</div></div>
+  </div>
+
+  <table>
+    <colgroup>
+      <col style="width:11%"><col style="width:14%"><col style="width:18%"><col style="width:12%">
+      <col style="width:7%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:14%">
+    </colgroup>
+    <thead><tr>
+      <th>Fecha / Hora</th><th>Servicio</th><th>Cliente</th><th>F. Pago</th>
+      <th class="r">805</th><th class="r">Total</th><th class="r">Entra</th>
+      <th class="r">Salida</th><th>Observación</th>
+    </tr></thead>
+    <tbody>${trs || '<tr><td colspan="9" style="text-align:center;color:#9aa6b4;padding:18px">Sin movimientos</td></tr>'}</tbody>
+  </table>`;
+}
+
+/* ---------------- diagnóstico (URL ...?dbg=1#d=...) ---------------- */
+function showDebug(p){
+  const q=new URLSearchParams(location.search);
+  if(q.get("dbg")!=="1") return;
+  const H=p?p.H:[], R=p?p.R:[];
+  const okH = H.length===33 ? "OK" : "⚠ esperaba 33";
+  let rows = R.slice(0,6).map((r,i)=>
+    `fila ${i}: ${r.length} campos ${r.length===12?'OK':'⚠ esperaba 12'}  →  [${r.map(x=>x===""?"·":x).join(" | ")}]`
+  ).join("\n");
+  const box=document.createElement("pre");
+  box.style.cssText="white-space:pre-wrap;font:11px/1.4 monospace;background:#1f2933;color:#d6e2f0;"+
+    "padding:12px 14px;margin:14px auto;max-width:8.5in;border-radius:8px;overflow:auto";
+  box.textContent=
+    "DIAGNÓSTICO\n"+
+    "Cabecera: "+H.length+" campos ("+okH+")\n"+
+    "Filas detectadas: "+R.length+"\n"+
+    "Separadores: sección ‖  fila ‡  campo ^\n"+
+    "Si una fila trae 1 solo campo, tus valores NO se están separando por ^.\n\n"+
+    rows;
+  document.body.appendChild(box);
+}
+
+/* ---------------- arranque ---------------- */
+(function(){
+  const p=readPayload();
+  if(p){ render(p.H,p.R); }
+  else { render(DEMO_H,DEMO_R); }
+  showDebug(p);
+  if(new URLSearchParams(location.search).get("p")==="1"){ setTimeout(()=>window.print(),400); }
+})();
+window.addEventListener("hashchange",()=>{const p=readPayload(); if(p) render(p.H,p.R);});
+</script>
+</body>
+</html>
