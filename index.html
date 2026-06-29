@@ -121,17 +121,17 @@
   }
   .box{border:1px solid var(--line);border-radius:7px;overflow:hidden}
   .box h4{
-    margin:0;font-size:10px;letter-spacing:.6px;text-transform:uppercase;
-    font-weight:800;color:#fff;padding:4px 8px;background:var(--brown);
+    margin:0;font-size:11.5px;letter-spacing:.5px;text-transform:uppercase;
+    font-weight:800;color:#fff;padding:5px 9px;background:var(--brown);
   }
   .box.salidas h4{background:#2c6e9e}
   .box.canc h4{background:#46719e}
-  .rows{padding:3px 8px 5px}
+  .rows{padding:4px 9px 6px}
   .rows .r{display:flex;justify-content:space-between;align-items:baseline;
-     padding:2px 0;border-bottom:1px dotted var(--line2);font-size:11px}
+     padding:3px 0;border-bottom:1px dotted var(--line2);font-size:13px}
   .rows .r:last-child{border-bottom:none}
-  .rows .r .k{color:#5a5249;font-weight:600}
-  .rows .r .x{font-weight:800;color:var(--ink)}
+  .rows .r .k{color:#1a1a1a;font-weight:600}
+  .rows .r .x{font-weight:800;color:#000;font-size:13.5px}
   .rows .r .x.z{color:var(--mut);font-weight:600}
 
   /* ---------- TABLA DE MOVIMIENTOS (cuadros separados) ---------- */
@@ -195,9 +195,9 @@
 <script>
 /* =====================================================================
    CONTRATO DE DATOS  ·  URL:  index.html#d=<ENCODEURL(payload)>
-   payload = HEADER ‖ ROW ‡ ROW ‡ ROW ...
-   - separador de secciones (header vs filas): ‖   (U+2016)
-   - separador entre filas:                    ‡   (U+2021)
+   payload = HEADER || ROW ~~ ROW ~~ ROW ...
+   - separador de secciones (header vs filas): ||  (doble pipe)
+   - separador entre filas:                    ~~  (doble tilde)
    - separador de campos:                      ^
    HEADER (33 campos, en orden):
      0 fechaI   1 fechaF   2 empleado   3 fotoURL
@@ -212,7 +212,7 @@
      5 cliente 6 formaPago 7 col805(comision) 8 total
      9 entrada 10 salida 11 observacion
    ===================================================================== */
-const SEC='\u2016', REC='\u2021', F='^';
+const SEC='||', REC='~~', F='^';
 
 /* ---- datos de muestra (se ven si abres el HTML sin #d=) ---- */
 const DEMO_H = ["Jun-26-2026","Jun-26-2026","Dinorah","","400","6387","1612","4775","495.00","4776","1014.00","-1","Sobrante",
@@ -248,7 +248,9 @@ function readPayload(){
   raw=smartDecode(raw);
   const parts=raw.split(SEC);
   const H=(parts[0]||"").split(F);
-  const R=(parts[1]||"").trim()? parts[1].split(REC).map(r=>r.split(F)) : [];
+  const R=(parts[1]||"").trim()
+    ? parts[1].split(REC).map(s=>s.trim()).filter(s=>s!=="").map(r=>r.split(F))
+    : [];
   return {H,R};
 }
 
@@ -374,7 +376,7 @@ function showDebug(p){
     "DIAGNÓSTICO\n"+
     "Cabecera: "+H.length+" campos ("+okH+")\n"+
     "Filas detectadas: "+R.length+"\n"+
-    "Separadores: sección ‖  fila ‡  campo ^\n"+
+    "Separadores: sección ||  fila ~~  campo ^\n"+
     "Si una fila trae 1 solo campo, tus valores NO se están separando por ^.\n\n"+
     rows;
   document.body.appendChild(box);
