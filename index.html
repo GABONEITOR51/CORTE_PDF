@@ -92,13 +92,13 @@
   .kpi{display:flex;justify-content:space-between;align-items:baseline;
        padding:2.5px 0;border-bottom:1px solid var(--line2)}
   .kpi:last-child{border-bottom:none}
-  .kpi .l{font-weight:600;color:#5a5249;font-size:11.5px}
+  .kpi .l{font-weight:800;color:#41546a;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px}
   .kpi .v{font-weight:800;font-size:14px}
   .kpi.in .v{color:var(--green)}
   .kpi.out .v{color:var(--red)}
-  .kpi.corte .l,.kpi.corte .v{color:var(--brown);font-size:15px}
+  .kpi.corte .l,.kpi.corte .v{color:var(--brown)}
   .kpi.entrega .v{color:var(--blue)}
-  .kpi.dif .v{font-size:13px}
+  .kpi.dif .v{font-size:14px}
   .kpi.dif .v.fal{color:var(--red)}
   .kpi.dif .v.sob{color:var(--green)}
   .cobros{
@@ -115,7 +115,7 @@
   /* ---------- BLOQUE DE RESUMEN ---------- */
   .summary{
     display:grid;
-    grid-template-columns:1.35fr 1fr 1fr;
+    grid-template-columns:2.1fr 1fr 1fr;
     gap:8px;
     margin:9px 0 6px;
   }
@@ -128,11 +128,14 @@
   .box.canc h4{background:#46719e}
   .rows{padding:4px 9px 6px}
   .rows .r{display:flex;justify-content:space-between;align-items:baseline;
-     padding:3px 0;border-bottom:1px dotted var(--line2);font-size:13px}
+     padding:2px 0;border-bottom:1px dotted var(--line2);font-size:11px}
   .rows .r:last-child{border-bottom:none}
   .rows .r .k{color:#1a1a1a;font-weight:600}
-  .rows .r .x{font-weight:800;color:#000;font-size:13.5px}
+  .rows .r .x{font-weight:800;color:#000;font-size:11px}
   .rows .r .x.z{color:var(--mut);font-weight:600}
+  .rows.two{display:flex;gap:10px;padding:4px 9px 6px}
+  .rows.two .col{flex:1;min-width:0}
+  .rows.two .col .r .k{white-space:nowrap}
 
   /* ---------- TABLA DE MOVIMIENTOS (cuadros separados) ---------- */
   table{width:100%;border-collapse:collapse;margin-top:4px;table-layout:fixed}
@@ -160,12 +163,12 @@
   .serv{font-weight:800;color:var(--blue);text-transform:uppercase;font-size:9.5px;line-height:1.08}
   .desc{color:#5a6675;font-size:9px;margin-top:0;line-height:1.05}
   .cli{font-weight:700;line-height:1.08}
-  .pay{font-size:8.5px;color:#5a6675;text-transform:uppercase;line-height:1.05}
+  .pay{font-size:8.5px;color:#5a6675;text-transform:uppercase;line-height:1.05;white-space:nowrap}
   td.r{font-variant-numeric:tabular-nums;font-weight:700}
   td.r.in{color:var(--green)}
   td.r.out{color:var(--red)}
   td.r.z{color:var(--mut);font-weight:500}
-  .obs{font-size:8.5px;color:#5a6675;text-transform:uppercase;line-height:1.05}
+  .obsx{display:block;font-weight:400;color:#6a7686;font-size:9px;line-height:1.05;margin-top:1px}
 
   /* ---------- BOTÓN ---------- */
   .print-btn{
@@ -269,6 +272,8 @@ function dash(v){            // muestra "-" si es 0 / vacío
   return {t:n.toLocaleString("en-US",{maximumFractionDigits:2}),z:false};
 }
 function esc(s){return (s==null?"":""+s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+function cut10(s){const a=Array.from(s||"");return a.length>10?a.slice(0,10).join(""):(s||"");}
+function payFmt(s){return cut10((s||"").replace(/^([^\x00-\x7F]+)\s+/,"$1"));}
 function isOut(tipo){return /salid/i.test(tipo||"");}
 
 /* ---------------- render ---------------- */
@@ -288,14 +293,14 @@ function render(H,R){
     : `<div class="logo">805</div>`;
 
   /* ----- grupos del resumen ----- */
-  const entradas=[["INSURANCE",13],["DMV",15],["LIVESCAN",16],["VIAMERICAS",18],
-                  ["LATINO",14],["RIA",17],["INTERMEX",19],["WESTER UN",20],
-                  ["RAMOS CAJAS",21],["OTRAS ENTRADAS",22]];
+  const entradasA=[["INSURANCE",13],["LATINO",14],["DMV",15],["LIVESCAN",16],["RIA",17]];
+  const entradasB=[["VIAMERICAS",18],["INTERMEX",19],["WESTER UN",20],["RAMOS CAJAS",21],["OTRAS ENTRADAS",22]];
   const salidas =[["TARJETA",23],["A DEBER",24],["OTRAS SALIDAS",25],["CHEQUE",26],["ZELLE",27]];
   const canc    =[["CANC VIAMERIC",28],["CANC INTERMX",29],["CANC WESTER",30],["CANC RIA",31],["PAYOUT RIA",32]];
+  const titleCase = s => s.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
   const rowsHtml = arr => arr.map(([k,i])=>{
     const d=dash(g(i));
-    return `<div class="r"><span class="k">${k}</span><span class="x num ${d.z?'z':''}">${d.t}</span></div>`;
+    return `<div class="r"><span class="k">${titleCase(k)}</span><span class="x num ${d.z?'z':''}">${d.t}</span></div>`;
   }).join("");
 
   /* ----- filas de la tabla ----- */
@@ -305,13 +310,12 @@ function render(H,R){
     return `<tr>
       <td class="fch ${out?'o':'i'}"><div class="dt">${esc(r[1]||'')}</div><div class="hr">${esc(r[2]||'')}</div></td>
       <td><div class="serv">${esc(r[4]||'')}</div><div class="desc">${esc(r[3]||'')}</div></td>
-      <td class="cli">${esc(r[5]||'')}</td>
-      <td><div class="pay">${esc(r[6]||'')}</div></td>
+      <td class="cli">${esc(r[5]||'')}${(r[11]&&(""+r[11]).trim())?`<span class="obsx">(${esc(r[11])})</span>`:''}</td>
+      <td><div class="pay">${esc(payFmt(r[6]))}</div></td>
       <td class="r num ${c805.z?'z':''}">${c805.t}</td>
       <td class="r num ${tot.z?'z':''}">${tot.t}</td>
       <td class="r num in ${ent.z?'z':''}">${ent.t}</td>
       <td class="r num out ${sal.z?'z':''}">${sal.t}</td>
-      <td class="obs">${esc(r[11]||'')}</td>
     </tr>`;
   }).join("");
 
@@ -341,22 +345,22 @@ function render(H,R){
   </div>
 
   <div class="summary">
-    <div class="box"><h4>Entradas por servicio</h4><div class="rows">${rowsHtml(entradas)}</div></div>
+    <div class="box"><h4>Entradas por servicio</h4><div class="rows two"><div class="col">${rowsHtml(entradasA)}</div><div class="col">${rowsHtml(entradasB)}</div></div></div>
     <div class="box salidas"><h4>Pagos / Salidas</h4><div class="rows">${rowsHtml(salidas)}</div></div>
     <div class="box canc"><h4>Cancelaciones</h4><div class="rows">${rowsHtml(canc)}</div></div>
   </div>
 
   <table>
     <colgroup>
-      <col style="width:11%"><col style="width:14%"><col style="width:18%"><col style="width:12%">
-      <col style="width:7%"><col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:14%">
+      <col style="width:11%"><col style="width:14%"><col style="width:42%"><col style="width:10%">
+      <col style="width:5%"><col style="width:6%"><col style="width:6%"><col style="width:6%">
     </colgroup>
     <thead><tr>
-      <th>Fecha / Hora</th><th>Servicio</th><th>Cliente</th><th>F. Pago</th>
+      <th>Fecha/H</th><th>Servicio</th><th>Cliente</th><th>F. Pago</th>
       <th class="r">805</th><th class="r">Total</th><th class="r">Entra</th>
-      <th class="r">Salida</th><th>Observación</th>
+      <th class="r">Salida</th>
     </tr></thead>
-    <tbody>${trs || '<tr><td colspan="9" style="text-align:center;color:#9aa6b4;padding:18px">Sin movimientos</td></tr>'}</tbody>
+    <tbody>${trs || '<tr><td colspan="8" style="text-align:center;color:#9aa6b4;padding:18px">Sin movimientos</td></tr>'}</tbody>
   </table>`;
 }
 
