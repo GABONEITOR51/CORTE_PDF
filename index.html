@@ -311,10 +311,18 @@ function render(H,R){
   const salidas =[["TARJETA",23],["A DEBER",24],["OTRAS SALIDAS",25],["CHEQUE",26],["ZELLE",27]];
   const canc    =[["CANC VIAMERIC",28],["CANC INTERMX",29],["CANC WESTER",30],["CANC RIA",31],["PAYOUT RIA",32]];
   const titleCase = s => s.toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+  const tieneDato = ([k,i]) => !dash(g(i)).z;            // true si la fila trae valor real
   const rowsHtml = arr => arr.map(([k,i])=>{
     const d=dash(g(i));
     return `<div class="r"><span class="k">${titleCase(k)}</span><span class="x num ${d.z?'z':''}">${d.t}</span></div>`;
   }).join("");
+
+  // Entradas: junta ambas sub-columnas, quita vacías y reparte balanceado
+  const entradasFull=[...entradasA,...entradasB].filter(tieneDato);
+  const corte=Math.ceil(entradasFull.length/2);
+  const entA=entradasFull.slice(0,corte), entB=entradasFull.slice(corte);
+  const salidasF=salidas.filter(tieneDato);
+  const cancF=canc.filter(tieneDato);
 
   /* ----- filas de la tabla ----- */
   const trs = R.map(r=>{
@@ -354,9 +362,9 @@ function render(H,R){
   </div>
 
   <div class="summary">
-    <div class="box"><h4>Entradas por servicio</h4><div class="rows two"><div class="col">${rowsHtml(entradasA)}</div><div class="col">${rowsHtml(entradasB)}</div></div></div>
-    <div class="box salidas"><h4>Pagos / Salidas</h4><div class="rows">${rowsHtml(salidas)}</div></div>
-    <div class="box canc"><h4>Cancelaciones</h4><div class="rows">${rowsHtml(canc)}</div></div>
+    <div class="box"><h4>Entradas por servicio</h4><div class="rows two"><div class="col">${rowsHtml(entA)}</div><div class="col">${rowsHtml(entB)}</div></div></div>
+    <div class="box salidas"><h4>Pagos / Salidas</h4><div class="rows">${rowsHtml(salidasF)}</div></div>
+    <div class="box canc"><h4>Cancelaciones</h4><div class="rows">${rowsHtml(cancF)}</div></div>
   </div>
 
   <table>
