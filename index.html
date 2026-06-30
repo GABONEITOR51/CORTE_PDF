@@ -166,7 +166,8 @@
   .serv{font-weight:800;color:var(--blue);text-transform:uppercase;font-size:9.5px;line-height:1.08}
   .desc{color:#5a6675;font-size:9px;margin-top:0;line-height:1.05}
   .cli{font-weight:700;line-height:1.08}
-  .pay{font-size:8.5px;color:#5a6675;text-transform:uppercase;line-height:1.05;white-space:nowrap}
+  .pay{font-size:12px;font-weight:700;color:#41546a;text-transform:uppercase;line-height:1.05;
+       display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   td.r{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px}
   td.r.in{color:var(--green)}
   td.r.out{color:var(--red)}
@@ -276,7 +277,20 @@ function dash(v){            // muestra "-" si es 0 / vacío
 }
 function esc(s){return (s==null?"":""+s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
 function cut10(s){const a=Array.from(s||"");return a.length>10?a.slice(0,10).join(""):(s||"");}
-function payFmt(s){return cut10((s||"").replace(/^([^\x00-\x7F]+)\s+/,"$1"));}
+function payFmt(s){
+  const raw=""+(s||""); const t=raw.toUpperCase();
+  if(!t.trim()) return "";
+  const em=(raw.match(/^[^\x00-\x7F]+/)||[""])[0];   // icono inicial
+  let code;
+  if(/EFECT/.test(t))             code="EFECT";
+  else if(/DIRECT|COMPA/.test(t)) code="P. DIRE";
+  else if(/CARD/.test(t))         code="CARD";
+  else if(/DEBE/.test(t))         code="DEBE";
+  else if(/ZELLE/.test(t))        code="ZELLE";
+  else if(/CHEQ/.test(t))         code="CHEQ";
+  else code=Array.from(raw.replace(/^[^\x00-\x7F]+\s*/,"")).slice(0,7).join("").toUpperCase();
+  return em+code;
+}
 function isOut(tipo){return /salid/i.test(tipo||"");}
 const MESES={ene:"ENERO",jan:"ENERO",feb:"FEBRERO",mar:"MARZO",abr:"ABRIL",apr:"ABRIL",
   may:"MAYO",jun:"JUNIO",jul:"JULIO",ago:"AGOSTO",aug:"AGOSTO",sep:"SEPTIEMBRE",set:"SEPTIEMBRE",
