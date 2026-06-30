@@ -130,10 +130,10 @@
   .box.canc h4{background:#fff}
   .rows{padding:4px 9px 6px}
   .rows .r{display:flex;justify-content:space-between;align-items:baseline;
-     padding:2px 0;border-bottom:1px dotted var(--line2);font-size:11px}
+     padding:2px 0;border-bottom:1px dotted var(--line2);font-size:14px}
   .rows .r:last-child{border-bottom:none}
   .rows .r .k{color:#1a1a1a;font-weight:600}
-  .rows .r .x{font-weight:800;color:#000;font-size:11px}
+  .rows .r .x{font-weight:800;color:#000;font-size:14px}
   .rows .r .x.z{color:var(--mut);font-weight:600}
   .rows.two{display:flex;gap:10px;padding:4px 9px 6px}
   .rows.two .col{flex:1;min-width:0}
@@ -156,6 +156,7 @@
   }
   /* las 4 columnas numéricas: nunca parten en vertical */
   tbody td.r{overflow-wrap:normal;word-break:keep-all;white-space:nowrap}
+  tbody td.r,tbody td.vm{vertical-align:middle}
   tbody tr:nth-child(even){background:var(--sky-bg)}
   td.fch{border-left-width:3px;white-space:nowrap}
   td.fch.i{border-left-color:var(--green)}
@@ -332,7 +333,7 @@ function render(H,R){
       <td class="fch ${out?'o':'i'}"><div class="dt">${esc(r[1]||'')}</div><div class="hr">${esc(r[2]||'')}</div></td>
       <td><div class="serv">${esc(r[4]||'')}</div><div class="desc">${esc(r[3]||'')}</div></td>
       <td class="cli">${esc(r[5]||'')}${(r[11]&&(""+r[11]).trim())?`<span class="obsx">(${esc(r[11])})</span>`:''}</td>
-      <td><div class="pay">${esc(payFmt(r[6]))}</div></td>
+      <td class="vm"><div class="pay">${esc(payFmt(r[6]))}</div></td>
       <td class="r num ${c805.z?'z':''}">${c805.t}</td>
       <td class="r num ${tot.z?'z':''}">${tot.t}</td>
       <td class="r num in ${ent.z?'z':''}">${ent.t}</td>
